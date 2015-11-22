@@ -1,0 +1,17 @@
+{
+  "name": "luxafor-js",
+  "version": "1.0.0",
+  "description": "Simple API to control Luxafor device(s)",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "iamthefox",
+  "license": "ISC",
+  "devDependencies": {
+    "node-hid": "^0.5.1"
+  },
+  "dependencies": {
+    "hex-rgb": "^1.0.0"
+  }
+}

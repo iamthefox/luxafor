@@ -12,6 +12,7 @@
   },
   "author": "iamthefox",
   "license": "MIT",
+  "keywords": "usb,luxafor",
   "dependencies": {
     "hex-rgb": "^1.0.0",
     "node-hid": "^0.5.1"

@@ -1,6 +1,6 @@
 {
-  "name": "luxafor-js",
-  "version": "1.0.1",
+  "name": "@iamthefox/luxafor",
+  "version": "1.0.2",
   "description": "Simple API to control Luxafor device(s)",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iamthefox/luxafor-js"
+    "url": "https://github.com/iamthefox/luxafor"
   },
   "author": "iamthefox",
   "license": "MIT",

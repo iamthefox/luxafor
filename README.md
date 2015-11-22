@@ -1,4 +1,4 @@
-# Luxafor JS
+# Luxafor
 
 A simple javascript library that provides simple API to control Luxafor devices
 
@@ -15,7 +15,7 @@ You can go to http://luxafor.com/ to get more information about it.
 
 ## Installation
 ```
-npm install luxafor-js --save-dev
+npm install @iamthefox/luxafor --save-dev
 ```
 
 ## Usage 

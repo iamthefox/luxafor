@@ -15,12 +15,12 @@ You can go to http://luxafor.com/ to get more information about it.
 
 ## Installation
 ```
-npm install @iamthefox/luxafor --save-dev
+npm install luxafor-api --save-dev
 ```
 
 ## Usage 
 ```
-const device = require('luxafor-js');
+const device = require('luxafor-api');
 
 // api call to change the color
 device.setColor('both', '#fff');
@@ -35,7 +35,7 @@ It accepts following options:
 - 'both' for both front and back sides LEDs of Luxafor device
 - 'top' for top (tab side) LEDs only
 - 'bottom' for back side LEDs only
-- 1 to 6 integer rumbers representing each LED
+- 1 to 6 integer numbers representing each LED
 
 ### fadeTo(led, color, speed)
 
@@ -51,4 +51,4 @@ speed 0 to 255 number determines delay between each blink
 repeat 0 to 255 number amount of times to blink before returning to previous state
 
 ### wave(type, color, speed, repeat)
-Wave new color through all leds for certain amount of types and then return to previous state
+Wave new color through all LEDs for certain amount of types and then return to previous state

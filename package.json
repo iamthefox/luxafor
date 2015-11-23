@@ -1,6 +1,6 @@
 {
-  "name": "@iamthefox/luxafor",
-  "version": "1.0.2",
+  "name": "luxafor-api",
+  "version": "1.0.3",
   "description": "Simple API to control Luxafor device(s)",
   "main": "index.js",
   "scripts": {

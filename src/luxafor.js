@@ -11,7 +11,32 @@ class Luxafor {
       vid: 0x04d8
     };
 
-    this.device = new HID.HID(this.options.vid,this.options.pid);
+    // try to open usb device, log the error on failure
+    try {
+      this.device = new HID.HID(this.options.vid,this.options.pid);
+    }
+    catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**
+   * Write data to usb device
+   *
+   * @param data
+   */
+  write(data) {
+    if(!this.device) {
+      return false;
+    }
+
+    try {
+      this.device.write(data);
+    }
+    catch (e) {
+      console.log(e);
+    }
+
   }
 
   /**
@@ -24,7 +49,7 @@ class Luxafor {
    */
   setColor(led, color) {
     const rgb = hex2rgb(color);
-    this.device.write([1,this.getLedType(led), rgb[0], rgb[1], rgb[2]]);
+    this.write([1,this.getLedType(led), rgb[0], rgb[1], rgb[2]]);
   }
 
   /**
@@ -39,7 +64,7 @@ class Luxafor {
    */
   fadeTo(led, color, speed) {
     const rgb = hex2rgb(color);
-    this.device.write([2,this.getLedType(led), rgb[0], rgb[1], rgb[2], speed]);
+    this.write([2,this.getLedType(led), rgb[0], rgb[1], rgb[2], speed]);
   }
 
   /**
@@ -55,7 +80,7 @@ class Luxafor {
    */
   flash(led, color, speed, repeat) {
     const rgb = hex2rgb(color);
-    this.device.write([3,this.getLedType(led), rgb[0], rgb[1], rgb[2], speed, 0, repeat]);
+    this.write([3,this.getLedType(led), rgb[0], rgb[1], rgb[2], speed, 0, repeat]);
   }
 
   /**
@@ -68,7 +93,7 @@ class Luxafor {
    */
   wave(type, color, speed, repeat) {
     const rgb = hex2rgb(color);
-    this.device.write([4,this.getWaveType(type), rgb[0], rgb[1], rgb[2], 0, repeat, speed]);
+    this.write([4,this.getWaveType(type), rgb[0], rgb[1], rgb[2], 0, repeat, speed]);
   }
 
   /**

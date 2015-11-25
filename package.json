@@ -1,6 +1,6 @@
 {
   "name": "luxafor-api",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Simple API to control Luxafor device(s)",
   "main": "index.js",
   "scripts": {

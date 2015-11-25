@@ -52,3 +52,12 @@ repeat 0 to 255 number amount of times to blink before returning to previous sta
 
 ### wave(type, color, speed, repeat)
 Wave new color through all LEDs for certain amount of types and then return to previous state
+
+type is just a string that represents 4 different wave types:
+  * singleSmall (1 LED)
+  * singleLarge (2 LED)
+  * doubleSmall (1 LED with other LEDs keeping previous color)
+  * doubleLarge (2 LED with other LEDs keeping previous color)
+
+color, speed and repeat are the same as in flash function.
+

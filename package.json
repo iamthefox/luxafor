@@ -15,6 +15,7 @@
   "keywords": "usb,luxafor",
   "dependencies": {
     "hex-rgb": "^1.0.0",
+    "lodash.get": "^4.2.1",
     "node-hid": "^0.5.1"
   }
 }

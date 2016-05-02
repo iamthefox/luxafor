@@ -1,169 +1,204 @@
-"use strict";
+'use strict';
+
 const HID = require('node-hid');
 const hex2rgb = require('hex-rgb');
+const constants = require('./constants');
 
-class Luxafor {
+const COMMAND_SETCOLOR = 'COMMAND_SETCOLOR';
+const COMMAND_FADETO = 'COMMAND_FADETO';
+const COMMAND_FLASH = 'COMMAND_FLASH';
+const COMMAND_WAVE = 'COMMAND_WAVE';
 
-  constructor() {
-    this.device;
-    this.options = {
-      pid: 0xf372,
-      vid: 0x04d8
+function Luxafor(opts) {
+
+    this.device = null;
+
+    // default options
+    this.opts = Object.assign({
+        // device id
+        pid: 0xf372,
+        vid: 0x04d8,
+
+        // default settings
+        defaults: {
+            setColor: {
+                target: 0xFF
+            },
+            fadeTo: {
+                target: 0xFF,
+                speed: 20
+            },
+            flash: {
+                target: 0xFF,
+                speed: 180,
+                repeat: 5
+            },
+            wave: {
+                type: 2,
+                speed: 90,
+                repeat: 5
+            }
+        }
+    }, opts);
+
+    // trying to initialize our device
+    try {
+        this.device = new HID.HID(this.opts.vid, this.opts.pid);
+        // pause until next command
+        this.device.pause();
+    }
+    catch (e) {
+        this.device = new Error(e);
+    }
+
+    /**
+     * Write data to hid device
+     * @param data
+     */
+    this.write = function (data) {
+        if (this.device instanceof Error || this.device === null) {
+            return new Error('Device is not connected.')
+        }
+        try {
+            this.device.resume();
+            this.device.write(data);
+            this.device.pause();
+        }
+        catch (e) {
+            return new Error(e)
+        }
+        // if everything went fine, returning true
+        return true;
     };
 
-    // try to open usb device, log the error on failure
-    try {
-      this.device = new HID.HID(this.options.vid,this.options.pid);
-    }
-    catch (e) {
-      console.log(e);
-    }
-  }
+    /**
+     * Converts color from hex to rgb array
+     *
+     * @param color hex color in the format of #ffffff
+     */
+    this.parseColor = function (color) {
+        return hex2rgb(color);
+    };
 
-  /**
-   * Write data to usb device
-   *
-   * @param data
-   */
-  write(data) {
-    if(!this.device) {
-      return false;
-    }
+    /**
+     * Issue command and write it onto hid device
+     *
+     * @param color
+     * @param options
+     */
+    this.issueCommand = function (command, target, color, options) {
+        // if there are no options, treat is as an empty array
+        options = typeof options !== 'undefined' ? options : [];
 
-    try {
-      this.device.write(data);
-    }
-    catch (e) {
-      console.log(e);
-    }
+        // converting hex to rgb array
+        const rgb = this.parseColor(color);
 
-  }
-
-  /**
-   * Set the color
-   * @param led {String} 'both' for both sides of the device
-   *               'top' for tab side
-   *               'bottom' for backside
-   *               numbers 1 to 6 to represent single leds
-   * @param color hex color
-   */
-  setColor(led, color) {
-    const rgb = hex2rgb(color);
-    this.write([1,this.getLedType(led), rgb[0], rgb[1], rgb[2]]);
-  }
-
-  /**
-   * Fade from current color to a new one
-   *
-   * @param led {String} 'both' for both sides of the device
-   *                     'top' for tab side
-   *                     'bottom' for backside
-   *                     numbers 1-6 to represent single led
-   * @param color        hex color
-   * @param speed        0-255 number representing transition speed
-   */
-  fadeTo(led, color, speed) {
-    const rgb = hex2rgb(color);
-    this.write([2,this.getLedType(led), rgb[0], rgb[1], rgb[2], speed]);
-  }
-
-  /**
-   * Blink new color for a specified amount of times with certain speed and return to previous state
-   *
-   * @param led {String} 'both' for both sides of the device
-   *                     'top' for tab side
-   *                     'bottom' for backside
-   *                     numbers 1-6 to represent single led
-   * @param color        hex color
-   * @param speed        0-255 number representing transition speed
-   * @param repeat       0-255 number of times we going to repeat
-   */
-  flash(led, color, speed, repeat) {
-    const rgb = hex2rgb(color);
-    this.write([3,this.getLedType(led), rgb[0], rgb[1], rgb[2], speed, 0, repeat]);
-  }
-
-  /**
-   * Wave new color through all leds for certain amount of types and then return to previous state
-   *
-   * @param type
-   * @param color
-   * @param speed
-   * @param repeat
-   */
-  wave(type, color, speed, repeat) {
-    const rgb = hex2rgb(color);
-    this.write([4,this.getWaveType(type), rgb[0], rgb[1], rgb[2], 0, repeat, speed]);
-  }
-
-  /**
-   * Get wave type based on human readable string
-   *
-   * @param type
-   * @returns {number}
-   */
-  getWaveType(type) {
-    let wave = 0;
-    switch (type) {
-      case 'singleSmall':
-        wave = 1;
-        break;
-      case 'singleLarge':
-        wave = 2;
-        break;
-      case 'doubleSmall':
-        wave = 3;
-        break;
-      case 'doubleLarge':
-        wave = 4;
-        break;
+        // writing data
+        return this.write([this.getCommand(command), target, rgb[0], rgb[1], rgb[2]].concat(options));
     }
 
-    return wave;
-  }
-
-  /**
-   * Get led(s) hex number based on string input
-   *
-   * @param string
-   * @returns {number}
-   */
-  getLedType(string) {
-    let led = 0;
-
-    switch(string) {
-      case 'both':
-        led = 0xFF; // both sides
-        break;
-      case 'top': // tab side
-        led = 0x41;
-        break;
-      case 'bottom':  // back side
-        led = 0x42;
-        break;
-      case 1:
-        led = 0x01;
-        break;
-      case 2:
-        led = 0x02;
-        break;
-      case 3:
-        led = 0x03;
-        break;
-      case 4:
-        led = 0x04;
-        break;
-      case 5:
-        led = 0x05;
-        break;
-      case 5:
-        led = 0x01;
-        break;
+    /**
+     * Get command constant by name
+     * @param command
+     */
+    this.getCommand = function (command) {
+        return constants.commands[command];
     }
-
-    return led;
-  }
-
 }
+
+/**
+ * Set given color for given target
+ *
+ * @param color hex color
+ * @param target target led
+ */
+Luxafor.prototype.setColor = function (color, target) {
+    // if target is not defined, we assume that we want to change the color of all leds
+    target = typeof target !== 'undefined' ? target : this.opts.defaults.setColor.target;
+
+    return this.issueCommand(COMMAND_SETCOLOR, target, color);
+};
+
+/**
+ * Fade current color to given color for target specified
+ * @param color hex color
+ * @param target
+ * @param speed  integer value from 0 to 255, 0 is the quickest, 255 is the slowest
+ */
+Luxafor.prototype.fadeTo = function (color, target, speed) {
+    // if target is not defined, we assume that we want to change the color of all leds
+    target = typeof target !== 'undefined' ? target : this.opts.defaults.fadeTo.target;
+
+    // specify default speed if not provided
+    speed = typeof speed !== 'undefined' ? speed : this.opts.defaults.fadeTo.speed;
+
+    return this.issueCommand(COMMAND_FADETO, target, color, [speed]);
+};
+
+/**
+ * Blink/flash color
+ *
+ * @param color
+ * @param target
+ * @param speed
+ * @param repeat
+ */
+Luxafor.prototype.flash = function (color, target, speed, repeat) {
+    // if target is not defined, we assume that we want to change the color of all leds
+    target = typeof target !== 'undefined' ? target : this.opts.defaults.flash.target;
+
+    // specify default speed if not provided
+    speed = typeof speed !== 'undefined' ? speed : this.opts.defaults.flash.speed;
+
+    // specify default speed if not provided
+    repeat = typeof repeat !== 'undefined' ? repeat : this.opts.defaults.flash.repeat;
+
+    return this.issueCommand(COMMAND_FLASH, target, color, [speed, 0, repeat]);
+};
+
+/**
+ * Wave color through all the leds
+ * @param color
+ * @param type
+ * @param speed
+ * @param repeat
+ */
+Luxafor.prototype.wave = function (color, type, speed, repeat) {
+    // defining default wave type if not specified
+    type = typeof type !== 'undefined' ? type : this.opts.defaults.wave.type;
+
+    // specify default speed if not provided
+    speed = typeof speed !== 'undefined' ? speed : this.opts.defaults.wave.speed;
+
+    // specify default speed if not provided
+    repeat = typeof repeat !== 'undefined' ? repeat : this.opts.defaults.wave.repeat;
+
+    return this.issueCommand(COMMAND_WAVE, type, color, [0, repeat, speed]);
+};
+
+/**
+ * Turn off all the leds
+ */
+Luxafor.prototype.off = function () {
+    return this.setColor('#000');
+};
+
+/**
+ * Return available targets
+ *
+ * @returns {*}
+ */
+Luxafor.prototype.getTargets = function () {
+    return constants.targets;
+};
+
+/**
+ * Return available targets
+ *
+ * @returns {*}
+ */
+Luxafor.prototype.getWaveTypes = function () {
+    return constants.waveTypes;
+};
 
 module.exports = Luxafor;

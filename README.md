@@ -1,6 +1,6 @@
 # Luxafor
 
-A simple javascript library that provides simple API to control Luxafor devices
+A simple library to control your Luxafor device via node.js
 
 ## About Luxafor
 
@@ -15,49 +15,73 @@ You can go to http://luxafor.com/ to get more information about it.
 
 ## Installation
 ```
-npm install luxafor-api --save-dev
+npm install luxafor-api --save
 ```
 
 ## Usage 
 ```
-const device = require('luxafor-api');
+const Luxafor = require('luxafor-api');
 
 // api call to change the color
-device.setColor('both', '#fff');
+let opts = {
+    defaults: {
+        wave: {
+            type: 2,
+            speed: 90,
+            repeat: 5
+        }
+    }
+};
+device = new Luxafor(options);
+device.setColor('#fff');
 ```
 
+## Target LEDs
+Led | Code
+--- | :---:
+all | 0xFF
+top row | 0x41
+bottom row | 0x42
+led #1-6 | 0x01 - 0x06
+
+
+
+
 ## API
-### setColor(led, color) 
-Set luxafor color based on hex color provided.
 
-First argument allows us to target specific LED or all of them at the same time.
-It accepts following options:
-- 'both' for both front and back sides LEDs of Luxafor device
-- 'top' for top (tab side) LEDs only
-- 'bottom' for back side LEDs only
-- 1 to 6 integer numbers representing each LED
+### setColor(color, target)
+Set target led's color. When target is not provided it assumes we want to change color for all leds.
 
-### fadeTo(led, color, speed)
+### fadeTo(color, target, speed = 20)
 
 Similar to setColor, the only difference it will transition smoothly from previous color to the one specified.
 
 speed is a number 0-255 that represents the speed of the transition, 0 is the quickest 255 is the slowest.
 
-### flash(led, color, speed, repeat)
-Blink new color for a specified amount of times with certain speed and return to previous state
-led param has same meaning as setColor and fadeTo
-color is just a hex color representation
+### flash(color, target, speed = 180, repeat = 5)
+Flash color for an amount of times specified in repeat parameter.
+
 speed 0 to 255 number determines delay between each blink
+
 repeat 0 to 255 number amount of times to blink before returning to previous state
 
-### wave(type, color, speed, repeat)
-Wave new color through all LEDs for certain amount of types and then return to previous state
+### wave(color, type = 2, speed = 90, repeat = 5)
+Starts a wave that goes through all the leds with the pattern specified in type variable
 
-type is just a string that represents 4 different wave types:
-  * singleSmall (1 LED)
-  * singleLarge (2 LED)
-  * doubleSmall (1 LED with other LEDs keeping previous color)
-  * doubleLarge (2 LED with other LEDs keeping previous color)
+There are 4 types available:
+  * 1 - short wave
+  * 2 - long wave
+  * 3 - overlapping short wave
+  * 4 - overlapping long wave
 
-color, speed and repeat are the same as in flash function.
+### off()
+Turns off all leds
+
+### getTargets()
+returns the object with all available targets
+
+## getWaveTypes()
+returns available wave types
+
+
 

@@ -12,6 +12,7 @@ module.exports = {
     targets: {
         all: 0xFF,
         top: 0x41,
+        bottom: 0x42,
         getLedByNumber: function (number) {
             switch (number) {
                 case 1:

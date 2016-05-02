@@ -3,12 +3,11 @@
 const HID = require('node-hid');
 const hex2rgb = require('hex-rgb');
 const constants = require('./constants');
-const get = require('lodash.get');
 
 const COMMAND_SETCOLOR = 'COMMAND_SETCOLOR';
-const COMMAND_FADETO   = 'COMMAND_FADETO';
-const COMMAND_FLASH    = 'COMMAND_FLASH';
-const COMMAND_WAVE     = 'COMMAND_WAVE';
+const COMMAND_FADETO = 'COMMAND_FADETO';
+const COMMAND_FLASH = 'COMMAND_FLASH';
+const COMMAND_WAVE = 'COMMAND_WAVE';
 
 function Luxafor(opts) {
 
@@ -45,27 +44,31 @@ function Luxafor(opts) {
     // trying to initialize our device
     try {
         this.device = new HID.HID(this.opts.vid, this.opts.pid);
+        // pause until next command
+        this.device.pause();
     }
     catch (e) {
-        console.error(e);
+        this.device = new Error(e);
     }
-
-    this.device.on('error', function (error) {
-        console.error(error);
-    });
-
-    // after we initialise our device lets pause the device
-    this.device.pause();
 
     /**
      * Write data to hid device
      * @param data
      */
     this.write = function (data) {
-        console.log(data);
-        this.device.resume();
-        this.device.write(data);
-        this.device.pause();
+        if (this.device instanceof Error || this.device === null) {
+            return new Error('Device is not connected.')
+        }
+        try {
+            this.device.resume();
+            this.device.write(data);
+            this.device.pause();
+        }
+        catch (e) {
+            return new Error(e)
+        }
+        // if everything went fine, returning true
+        return true;
     };
 
     /**
@@ -91,7 +94,7 @@ function Luxafor(opts) {
         const rgb = this.parseColor(color);
 
         // writing data
-        this.write([this.getCommand(command), target, rgb[0], rgb[1], rgb[2]].concat(options));
+        return this.write([this.getCommand(command), target, rgb[0], rgb[1], rgb[2]].concat(options));
     }
 
     /**
@@ -99,7 +102,7 @@ function Luxafor(opts) {
      * @param command
      */
     this.getCommand = function (command) {
-        return get(constants, 'commands.' + command);
+        return constants.commands[command];
     }
 }
 
@@ -113,7 +116,7 @@ Luxafor.prototype.setColor = function (color, target) {
     // if target is not defined, we assume that we want to change the color of all leds
     target = typeof target !== 'undefined' ? target : this.opts.defaults.setColor.target;
 
-    this.issueCommand(COMMAND_SETCOLOR, target, color);
+    return this.issueCommand(COMMAND_SETCOLOR, target, color);
 };
 
 /**
@@ -129,7 +132,7 @@ Luxafor.prototype.fadeTo = function (color, target, speed) {
     // specify default speed if not provided
     speed = typeof speed !== 'undefined' ? speed : this.opts.defaults.fadeTo.speed;
 
-    this.issueCommand(COMMAND_FADETO, target, color, [speed]);
+    return this.issueCommand(COMMAND_FADETO, target, color, [speed]);
 };
 
 /**
@@ -150,7 +153,7 @@ Luxafor.prototype.flash = function (color, target, speed, repeat) {
     // specify default speed if not provided
     repeat = typeof repeat !== 'undefined' ? repeat : this.opts.defaults.flash.repeat;
 
-    this.issueCommand(COMMAND_FLASH, target, color, [speed, 0, repeat]);
+    return this.issueCommand(COMMAND_FLASH, target, color, [speed, 0, repeat]);
 };
 
 /**
@@ -170,14 +173,14 @@ Luxafor.prototype.wave = function (color, type, speed, repeat) {
     // specify default speed if not provided
     repeat = typeof repeat !== 'undefined' ? repeat : this.opts.defaults.wave.repeat;
 
-    this.issueCommand(COMMAND_WAVE, type, color, [0, repeat, speed]);
+    return this.issueCommand(COMMAND_WAVE, type, color, [0, repeat, speed]);
 };
 
 /**
  * Turn off all the leds
  */
 Luxafor.prototype.off = function () {
-    this.setColor('#000');
+    return this.setColor('#000');
 };
 
 /**

@@ -1,7 +1,7 @@
 {
   "name": "luxafor-api",
-  "version": "1.0.4",
-  "description": "Simple API to control Luxafor device(s)",
+  "version": "2.0.0",
+  "description": "Control your Luxafor device via node.js",
   "main": "index.js",
   "scripts": {
     "test": "test"
@@ -12,7 +12,7 @@
   },
   "author": "iamthefox",
   "license": "MIT",
-  "keywords": "usb,luxafor",
+  "keywords": "usb,luxafor,productivity",
   "dependencies": {
     "hex-rgb": "^1.0.0",
     "node-hid": "^0.5.1"

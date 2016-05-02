@@ -83,5 +83,7 @@ returns the object with all available targets
 ## getWaveTypes()
 returns available wave types
 
+*Note: each one of those methods will return (bool) true when command was successfully executed or new Error object when it fails.*
+
 
 

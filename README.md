@@ -32,7 +32,7 @@ let opts = {
         }
     }
 };
-device = new Luxafor(options);
+device = new Luxafor(opts);
 device.setColor('#fff');
 ```
 

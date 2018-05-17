@@ -3,6 +3,7 @@
 const HID = require('node-hid');
 const hex2rgb = require('hex-rgb');
 const constants = require('./constants');
+const os = require('os');
 
 const COMMAND_SETCOLOR = 'COMMAND_SETCOLOR';
 const COMMAND_FADETO = 'COMMAND_FADETO';
@@ -61,6 +62,9 @@ function Luxafor(opts) {
         }
         try {
             this.device.resume();
+            if (os.platform() === 'win32') {
+              data.unshift(0);
+            }
             this.device.write(data);
             this.device.pause();
         }

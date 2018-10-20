@@ -14,7 +14,7 @@
   "license": "MIT",
   "keywords": "usb,luxafor,productivity",
   "dependencies": {
-    "hex-rgb": "^1.0.0",
-    "node-hid": "^0.5.1"
+    "hex-rgb": "3.0.0",
+    "node-hid": "0.7.3"
   }
 }

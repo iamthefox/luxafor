@@ -7,6 +7,14 @@
   "scripts": {
     "build": "rollup -c --environment BUILD:production"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/iamthefox/luxafor"

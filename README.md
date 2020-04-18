@@ -1,6 +1,6 @@
 # Luxafor
 
-A simple library to control your Luxafor device via node.js
+A simple library to control your Luxafor device using Node
 
 ## About Luxafor
 
@@ -16,24 +16,19 @@ You can go to http://luxafor.com/ to get more information about it.
 ## Installation
 ```
 npm install luxafor-api --save
+
+// or
+
+yarn add luxafor-api
 ```
 
 ## Usage 
 ```
-const Luxafor = require('luxafor-api');
+const { device, devices } = require('luxafor-api');
 
-// api call to change the color
-let opts = {
-    defaults: {
-        wave: {
-            type: 2,
-            speed: 90,
-            repeat: 5
-        }
-    }
-};
-device = new Luxafor(opts);
-device.setColor('#fff');
+const luxafor = device(); // use devices() to get all devices
+
+device.color('red'); // or use hex color e.g. #fff
 ```
 
 ## Target LEDs
@@ -44,46 +39,51 @@ top row | 0x41
 bottom row | 0x42
 led #1-6 | 0x01 - 0x06
 
-
-
-
 ## API
 
-### setColor(color, target)
-Set target led's color. When target is not provided it assumes we want to change color for all leds.
+### color(color, target?)
 
-### fadeTo(color, target, speed = 20)
+Set device color. Optionally can set target LED's from the table above. Defaults to all LEDs
 
-Similar to setColor, the only difference it will transition smoothly from previous color to the one specified.
+### fadeTo(color, speed? = 20, target?)
+
+Fade device color from current to a given color. 
 
 speed is a number 0-255 that represents the speed of the transition, 0 is the quickest 255 is the slowest.
 
-### flash(color, target, speed = 180, repeat = 5)
+### flash(color, speed? = 180, repeat? = 5, target?)
+
 Flash color for an amount of times specified in repeat parameter.
 
 speed 0 to 255 number determines delay between each blink
 
 repeat 0 to 255 number amount of times to blink before returning to previous state
 
-### wave(color, type = 2, speed = 90, repeat = 5)
-Starts a wave that goes through all the leds with the pattern specified in type variable
+### wave(color, type = WAVE_SHORT, speed = 90, repeat = 5)
+Starts a wave that goes through all the LEDs with the pattern specified in type variable
 
 There are 4 types available:
-  * 1 - short wave
-  * 2 - long wave
-  * 3 - overlapping short wave
-  * 4 - overlapping long wave
+  * WAVE_SHORT - short wave
+  * WAVE_LONG - long wave
+  * WAVE_SHORT_OVERLAPPING - overlapping short wave
+  * WAVE_LONG_OVERLAPPING - overlapping long wave
+  
+ Type constants are available as so
+ 
+```js
+import { device, constants } from 'luxafor-api';
+
+const luxafor = device();
+luxafor.wave('blue', constants.WAVE_SHORT);
+```
+
+### police(repeat? = 5)
+
+Starts a predefined police pattern. Goes back to previous state once repeat limit is reached.
+
+### rainbow(repeat? = 5)
+
+Starts a predefined rainbow pattern. Goes back to previous state once repeat limit is reached.
 
 ### off()
 Turns off all leds
-
-### getTargets()
-returns the object with all available targets
-
-## getWaveTypes()
-returns available wave types
-
-*Note: each one of those methods will return (bool) true when command was successfully executed or new Error object when it fails.*
-
-
-

@@ -1,3 +1,17 @@
-/node_modules
-/.idea
-/dist
+# NPM
+npm-debug.log*
+node_modules/
+.npm
+
+# IDEs
+.vscode/
+*.code-workspace
+.idea/
+
+# bundler
+.cache
+dist/
+
+# OSX
+.DS_Store
+.LSOverride

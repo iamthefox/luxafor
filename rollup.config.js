@@ -1,21 +1,27 @@
-import babel from "rollup-plugin-babel";
+import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
-import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import pkg from "./package.json";
 
 export default {
-  input: "src/Luxafor.js",
+  input: "src/index.ts",
   output: [
     {
-      file: pkg.main,
-      format: "cjs",
-    },
-    {
-      file: pkg.module,
+      file: "dist/index.mjs",
       format: "es",
     },
+    {
+      file: "dist/index.js",
+      format: "cjs",
+    },
   ],
-  plugins: [resolve(), commonjs(), babel(), terser()],
-  external: ["node-hid"],
+  plugins: [
+    typescript(),
+    terser({
+      ecma: 5,
+      module: true,
+      toplevel: true,
+      compress: { pure_getters: true },
+      format: { wrap_func_args: false },
+    }),
+  ],
+  external: ["os", "node-hid", "colord", "colord/plugins/names"],
 };

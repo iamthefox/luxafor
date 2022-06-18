@@ -7,11 +7,11 @@
   "scripts": {
     "check-types": "tsc --noEmit true",
     "build": "rm -rf ./dist/* && rollup --config",
-    "release": "npm run build && cp *.json dist && cp *.md dist && npm publish dist",
+    "release": "npm run build && cp *.json dist && cp *.md dist && npm publish ./dist",
     "check-release": "npm run release -- --dry-run"
   },
   "files": [
-    "dist"
+    "*.{js,mjs,ts}"
   ],
   "repository": "iamthefox/luxafor",
   "author": "Alex Lisowski <me@iamthefox.com>",
